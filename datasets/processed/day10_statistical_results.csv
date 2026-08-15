@@ -1,0 +1,5 @@
+analysis,correlation,p_value,significant_at_5_percent
+Dividend Yield vs Stock Return,-0.4621,0.0,True
+Dividend Yield vs Total Return,-0.4089,0.0,True
+Dividend Growth vs Stock Return,0.142,0.1587,False
+Dividend Consistency vs Average Stock Return,,,False
