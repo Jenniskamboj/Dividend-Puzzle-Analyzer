@@ -1,0 +1,5 @@
+Feature,Coefficient,Normalized_Importance,XGBoost_Importance,Overall_Importance
+dividend_yield,-5.239004,0.8163701490174349,0.36933,0.5928500745087174
+dividend_growth,-0.727658,0.1133876343468584,0.368466,0.2409268171734292
+return_volatility,0.450775,0.07024221663570673,0.262203,0.16622260831785338
+dividend_consistency,0.0,0.0,0.0,0.0
