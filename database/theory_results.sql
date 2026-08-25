@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS theory_results (
+    id SERIAL PRIMARY KEY,
+    theory_name VARCHAR(100) NOT NULL,
+    evidence_score DECIMAL(10,4) NOT NULL,
+    rank INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
