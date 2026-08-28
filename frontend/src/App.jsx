@@ -1,205 +1,90 @@
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./pages/ProtectedRoute";
 import Companies from "./pages/Companies";
 import MLAnalysis from "./pages/MLAnalysis";
 import TheoryAnalysis from "./pages/TheoryAnalysis";
 import Comparison from "./pages/Comparison";
-import About from "./pages/About";
-
-import "./App.css";
 
 function App() {
   return (
     <BrowserRouter>
+      <Routes>
 
-      <div className="app">
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        {/* Sidebar */}
+        <Route
+          path="/signup"
+          element={<Signup />}
+        />
 
-        <aside className="sidebar">
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-          <div className="logo">
+        <Route
+          path="/companies"
+          element={
+            <ProtectedRoute>
+              <Companies />
+            </ProtectedRoute>
+          }
+        />
 
-            <div className="logo-icon">
-              D
-            </div>
+        <Route
+          path="/ml-analysis"
+          element={
+            <ProtectedRoute>
+              <MLAnalysis />
+            </ProtectedRoute>
+          }
+        />
 
-            <div>
-              <h2>Dividend</h2>
-              <span>Puzzle Analyzer</span>
-            </div>
+        <Route
+          path="/theory-analysis"
+          element={
+            <ProtectedRoute>
+              <TheoryAnalysis />
+            </ProtectedRoute>
+          }
+        />
 
-          </div>
+        <Route
+          path="/comparison"
+          element={
+            <ProtectedRoute>
+              <Comparison />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
-          <nav className="navigation">
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
 
-            <NavLink
-              to="/"
-              end
-              className="nav-item"
-            >
-              <span>⌂</span>
-              Dashboard
-            </NavLink>
-
-
-            <NavLink
-              to="/companies"
-              className="nav-item"
-            >
-              <span>◉</span>
-              Companies
-            </NavLink>
-
-
-            <NavLink
-              to="/ml-analysis"
-              className="nav-item"
-            >
-              <span>◆</span>
-              ML Analysis
-            </NavLink>
-
-
-            <NavLink
-              to="/theories"
-              className="nav-item"
-            >
-              <span>◈</span>
-              Theory Analysis
-            </NavLink>
-
-
-            <NavLink
-              to="/comparison"
-              className="nav-item"
-            >
-              <span>⇄</span>
-              Comparison
-            </NavLink>
-
-
-            <NavLink
-              to="/about"
-              className="nav-item"
-            >
-              <span>ⓘ</span>
-              About
-            </NavLink>
-
-          </nav>
-
-
-          <div className="sidebar-footer">
-
-            <span>
-              Dividend Puzzle
-            </span>
-
-            <small>
-              Data Analytics Project
-            </small>
-
-          </div>
-
-        </aside>
-
-
-        {/* Main */}
-
-        <main className="main">
-
-          <header className="header">
-
-            <div>
-
-              <p className="eyebrow">
-                FINANCIAL ANALYTICS
-              </p>
-
-              <h1>
-                Dividend Puzzle Analyzer
-              </h1>
-
-            </div>
-
-
-            <div className="profile">
-
-              <div className="avatar">
-                J
-              </div>
-
-              <div>
-
-                <strong>
-                  Jennis
-                </strong>
-
-                <span>
-                  Project Analyst
-                </span>
-
-              </div>
-
-            </div>
-
-          </header>
-
-
-          <Routes>
-
-            <Route
-              path="/"
-              element={<Dashboard />}
-            />
-
-            <Route
-              path="/companies"
-              element={<Companies />}
-            />
-
-            <Route
-              path="/ml-analysis"
-              element={<MLAnalysis />}
-            />
-
-            <Route
-              path="/theories"
-              element={<TheoryAnalysis />}
-            />
-
-            <Route
-              path="/comparison"
-              element={<Comparison />}
-            />
-
-            <Route
-              path="/about"
-              element={<About />}
-            />
-
-          </Routes>
-
-
-          <footer>
-
-            <span>
-              Dividend Puzzle Analyzer
-            </span>
-
-            <span>
-              Data Analytics · Machine Learning · Finance
-            </span>
-
-          </footer>
-
-        </main>
-
-      </div>
-
+      </Routes>
     </BrowserRouter>
   );
 }

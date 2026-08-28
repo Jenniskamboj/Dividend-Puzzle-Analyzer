@@ -1,62 +1,81 @@
+import { useNavigate } from "react-router-dom";
+
 function TheoryAnalysis() {
+  const navigate = useNavigate();
+
   const theories = [
-    ["Agency Cost Theory", "0.3498", "1"],
-    ["Bird-in-Hand Theory", "0.2405", "2"],
-    ["Tax/Clientele Theory", "0.2405", "3"],
-    ["Signaling Theory", "0.2216", "4"],
+    {
+      name: "Agency Cost Theory",
+      score: "0.3498",
+      description:
+        "Suggests dividends can reduce agency problems between managers and shareholders.",
+    },
+    {
+      name: "Bird-in-Hand Theory",
+      score: "0.2405",
+      description:
+        "Suggests investors may prefer reliable dividends because they provide more certain returns.",
+    },
+    {
+      name: "Tax/Clientele Theory",
+      score: "0.2405",
+      description:
+        "Explores how taxation and investor preferences can influence dividend decisions.",
+    },
+    {
+      name: "Signaling Theory",
+      score: "0.2216",
+      description:
+        "Suggests dividend decisions can communicate information about company prospects.",
+    },
   ];
 
   return (
-    <div>
+    <div className="inner-page">
 
-      <div className="page-title">
+      <header className="inner-header">
 
-        <p className="eyebrow">
-          DIVIDEND THEORIES
+        <button onClick={() => navigate("/dashboard")}>
+          ← Dashboard
+        </button>
+
+        <h1>Dividend Theory Analysis</h1>
+
+        <span>Evidence Ranking</span>
+
+      </header>
+
+      <main className="inner-content">
+
+        <p className="page-description">
+          Empirical evidence supporting the four major dividend
+          theories studied in this project.
         </p>
 
-        <h1>
-          Theory Analysis
-        </h1>
+        <div className="theory-cards">
 
-        <p className="subtitle">
-          Evidence supporting the four major dividend theories.
-        </p>
+          {theories.map((theory, index) => (
+            <div className="theory-card" key={theory.name}>
 
-      </div>
+              <div className="rank">
+                #{index + 1}
+              </div>
 
-      <div className="page-card">
+              <h2>{theory.name}</h2>
 
-        <h2>
-          Theory Evidence
-        </h2>
+              <p>{theory.description}</p>
 
-        <div className="simple-table">
-
-          <div className="table-row table-header">
-            <span>Theory</span>
-            <span>Score</span>
-            <span>Rank</span>
-          </div>
-
-          {theories.map((theory) => (
-
-            <div className="table-row" key={theory[0]}>
-
-              <span>{theory[0]}</span>
-
-              <span>{theory[1]}</span>
-
-              <span>#{theory[2]}</span>
+              <div className="score">
+                <span>Evidence Score</span>
+                <strong>{theory.score}</strong>
+              </div>
 
             </div>
-
           ))}
 
         </div>
 
-      </div>
-
+      </main>
     </div>
   );
 }

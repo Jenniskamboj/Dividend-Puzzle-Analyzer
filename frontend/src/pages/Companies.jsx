@@ -1,30 +1,59 @@
+import { useNavigate } from "react-router-dom";
+
 function Companies() {
+  const navigate = useNavigate();
+
+  const companies = [
+    ["AAPL", "Apple Inc.", "0.52%", "18.4%"],
+    ["JNJ", "Johnson & Johnson", "3.10%", "9.8%"],
+    ["KO", "Coca-Cola", "2.85%", "11.2%"],
+    ["MCD", "McDonald's", "2.40%", "13.6%"],
+    ["MSFT", "Microsoft", "0.72%", "21.4%"],
+    ["PEP", "PepsiCo", "3.20%", "10.7%"],
+    ["PG", "Procter & Gamble", "2.55%", "9.6%"],
+    ["VZ", "Verizon", "6.20%", "4.8%"],
+  ];
+
   return (
-    <div>
-      <div className="page-title">
-        <p className="eyebrow">COMPANY ANALYSIS</p>
+    <div className="inner-page">
 
-        <h1>Companies</h1>
+      <header className="inner-header">
+        <button onClick={() => navigate("/dashboard")}>
+          ← Dashboard
+        </button>
 
-        <p className="subtitle">
-          Explore dividend-paying companies in the dataset.
-        </p>
-      </div>
+        <h1>Company Analysis</h1>
 
-      <div className="page-card">
+        <span>Dividend Intelligence</span>
+      </header>
 
-        <h2>Company Explorer</h2>
+      <main className="inner-content">
 
-        <p>
-          Company search, sector filtering, and year filtering
-          will be connected to the dataset here.
+        <p className="page-description">
+          Explore dividend characteristics across selected companies.
         </p>
 
-        <div className="coming-soon">
-          Company data coming in Day 31
+        <div className="data-table">
+
+          <div className="table-header">
+            <span>Ticker</span>
+            <span>Company</span>
+            <span>Dividend Yield</span>
+            <span>Total Return</span>
+          </div>
+
+          {companies.map((company) => (
+            <div className="table-row" key={company[0]}>
+              <strong>{company[0]}</strong>
+              <span>{company[1]}</span>
+              <span>{company[2]}</span>
+              <span>{company[3]}</span>
+            </div>
+          ))}
+
         </div>
 
-      </div>
+      </main>
     </div>
   );
 }

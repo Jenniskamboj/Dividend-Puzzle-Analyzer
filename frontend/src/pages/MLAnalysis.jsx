@@ -1,63 +1,86 @@
+import { useNavigate } from "react-router-dom";
+
 function MLAnalysis() {
+  const navigate = useNavigate();
+
+  const models = [
+    {
+      name: "Linear Regression",
+      mae: "12.8967",
+      rmse: "17.4255",
+      r2: "0.3665",
+      status: "Best Model",
+    },
+    {
+      name: "XGBoost",
+      mae: "15.1574",
+      rmse: "20.0839",
+      r2: "0.1585",
+      status: "Second",
+    },
+    {
+      name: "Random Forest",
+      mae: "15.4696",
+      rmse: "22.6244",
+      r2: "-0.0679",
+      status: "Lowest",
+    },
+  ];
+
   return (
-    <div>
+    <div className="inner-page">
 
-      <div className="page-title">
+      <header className="inner-header">
 
-        <p className="eyebrow">
-          MACHINE LEARNING
+        <button onClick={() => navigate("/dashboard")}>
+          ← Dashboard
+        </button>
+
+        <h1>Machine Learning Analysis</h1>
+
+        <span>Model Evaluation</span>
+
+      </header>
+
+      <main className="inner-content">
+
+        <p className="page-description">
+          Comparison of machine learning models used in the
+          Dividend Puzzle analysis.
         </p>
 
-        <h1>
-          ML Analysis
-        </h1>
+        <div className="analysis-grid">
 
-        <p className="subtitle">
-          Compare machine learning models used in the project.
-        </p>
+          {models.map((model) => (
+            <div className="analysis-card" key={model.name}>
 
-      </div>
+              <span className="analysis-badge">
+                {model.status}
+              </span>
 
-      <div className="page-card">
+              <h2>{model.name}</h2>
 
-        <h2>
-          Model Performance
-        </h2>
+              <div className="metric">
+                <span>MAE</span>
+                <strong>{model.mae}</strong>
+              </div>
 
-        <div className="simple-table">
+              <div className="metric">
+                <span>RMSE</span>
+                <strong>{model.rmse}</strong>
+              </div>
 
-          <div className="table-row table-header">
-            <span>Model</span>
-            <span>MAE</span>
-            <span>RMSE</span>
-            <span>R²</span>
-          </div>
+              <div className="metric">
+                <span>R²</span>
+                <strong>{model.r2}</strong>
+              </div>
 
-          <div className="table-row">
-            <span>Linear Regression</span>
-            <span>12.8967</span>
-            <span>17.4255</span>
-            <span>0.3665</span>
-          </div>
-
-          <div className="table-row">
-            <span>Random Forest</span>
-            <span>15.4696</span>
-            <span>22.6244</span>
-            <span>-0.0679</span>
-          </div>
-
-          <div className="table-row">
-            <span>XGBoost</span>
-            <span>15.1574</span>
-            <span>20.0839</span>
-            <span>0.1585</span>
-          </div>
+            </div>
+          ))}
 
         </div>
 
-      </div>
-
+      </main>
     </div>
   );
 }
