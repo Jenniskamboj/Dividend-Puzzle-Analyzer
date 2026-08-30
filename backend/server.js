@@ -3,16 +3,49 @@ const cors = require("cors");
 const { Pool } = require("pg");
 require("dotenv").config();
 
+const companyRoutes = require("./routes/companyRoutes");
+const mlRoutes = require("./routes/mlRoutes");
+
 const app = express();
 
-const companyRoutes = require("./routes/companyRoutes");
+const PORT = 5000;
+
+/*
+==================================================
+MIDDLEWARE
+==================================================
+*/
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/companies", companyRoutes);
+/*
+==================================================
+COMPANY API
+==================================================
+*/
 
-const PORT = 5000;
+app.use(
+  "/api/companies",
+  companyRoutes
+);
+
+/*
+==================================================
+ML API
+==================================================
+*/
+
+app.use(
+  "/api",
+  mlRoutes
+);
+
+/*
+==================================================
+POSTGRESQL DATABASE
+==================================================
+*/
 
 const pool = new Pool({
   host: "localhost",
@@ -22,35 +55,65 @@ const pool = new Pool({
   password: "jennis123",
 });
 
+/*
+==================================================
+HOME API
+==================================================
+*/
+
 app.get("/", (req, res) => {
   res.json({
     message: "Dividend Puzzle API is running",
   });
 });
 
-// Theory API
-app.get("/api/theories", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        theory_name,
-        evidence_score,
-        rank
-      FROM theory_results
-      ORDER BY rank ASC;
-    `);
+/*
+==================================================
+THEORY API
+==================================================
+*/
 
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Database error:", error);
+app.get(
+  "/api/theories",
+  async (req, res) => {
+    try {
+      const result =
+        await pool.query(`
+          SELECT
+            theory_name,
+            evidence_score,
+            rank
+          FROM theory_results
+          ORDER BY rank ASC;
+        `);
 
-    res.status(500).json({
-      message: "Failed to fetch theory results",
-      error: error.message,
-    });
+      res.json(result.rows);
+    } catch (error) {
+      console.error(
+        "Database error:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to fetch theory results",
+        error: error.message,
+      });
+    }
   }
-});
+);
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+/*
+==================================================
+START SERVER
+==================================================
+*/
+
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `Server running at http://localhost:${PORT}`
+    );
+  }
+);
