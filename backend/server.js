@@ -5,8 +5,12 @@ require("dotenv").config();
 
 const app = express();
 
+const companyRoutes = require("./routes/companyRoutes");
+
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/companies", companyRoutes);
 
 const PORT = 5000;
 
@@ -24,21 +28,20 @@ app.get("/", (req, res) => {
   });
 });
 
+// Theory API
 app.get("/api/theories", async (req, res) => {
   try {
-   const result = await pool.query(`
-  SELECT
-    theory_name,
-    evidence_score,
-    rank
-  FROM theory_results
-  ORDER BY rank ASC;
-`);
+    const result = await pool.query(`
+      SELECT
+        theory_name,
+        evidence_score,
+        rank
+      FROM theory_results
+      ORDER BY rank ASC;
+    `);
 
     res.json(result.rows);
-
   } catch (error) {
-
     console.error("Database error:", error);
 
     res.status(500).json({

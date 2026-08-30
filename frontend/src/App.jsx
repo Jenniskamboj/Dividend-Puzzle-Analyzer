@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./pages/ProtectedRoute";
+
 import Companies from "./pages/Companies";
 import MLAnalysis from "./pages/MLAnalysis";
 import TheoryAnalysis from "./pages/TheoryAnalysis";
@@ -19,6 +20,10 @@ function App() {
     <BrowserRouter>
       <Routes>
 
+        {/* =========================
+            PUBLIC ROUTES
+        ========================= */}
+
         <Route
           path="/login"
           element={<Login />}
@@ -28,6 +33,11 @@ function App() {
           path="/signup"
           element={<Signup />}
         />
+
+
+        {/* =========================
+            PROTECTED ROUTES
+        ========================= */}
 
         <Route
           path="/dashboard"
@@ -74,14 +84,34 @@ function App() {
           }
         />
 
+
+        {/* =========================
+            DEFAULT ROUTE
+        ========================= */}
+
         <Route
           path="/"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
         />
+
+
+        {/* =========================
+            404 ROUTE
+        ========================= */}
 
         <Route
           path="*"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
         />
 
       </Routes>
