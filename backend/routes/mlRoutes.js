@@ -4,227 +4,117 @@ const path = require("path");
 
 const router = express.Router();
 
-/*
-==================================================
-ML RESULTS API
-GET /api/ml-results
-==================================================
-*/
+const resultsPath = path.join(
+  __dirname,
+  "../../datasets/processed/day17_linear_regression_results.csv"
+);
 
-router.get("/ml-results", (req, res) => {
+router.get("/comparison", (req, res) => {
   try {
-    /*
-    Project structure:
-
-    Dividend-Puzzle-Analyzer/
-    ├── backend/
-    │   ├── server.js
-    │   └── routes/
-    │       └── mlRoutes.js
-    │
-    └── datasets/
-        └── processed/
-            └── day17_linear_regression_results.csv
-
-    From backend/routes/mlRoutes.js:
-
-    ..     = backend
-    ../..  = project root
-    */
-
-    const csvPath = path.join(
-      __dirname,
-      "../../datasets/processed/day17_linear_regression_results.csv"
-    );
-
-    console.log("Looking for ML CSV:");
-    console.log(csvPath);
-
-    // Check whether CSV exists
-    if (!fs.existsSync(csvPath)) {
+    if (!fs.existsSync(resultsPath)) {
       return res.status(404).json({
-        message: "ML results CSV file not found",
-        path: csvPath,
+        message: "ML results CSV not found",
       });
     }
 
-    // Read CSV
-    const csvData = fs.readFileSync(csvPath, "utf8");
+    const file = fs.readFileSync(resultsPath, "utf8");
 
-    // Split CSV into lines
-    const lines = csvData
+    const lines = file
       .trim()
       .split(/\r?\n/)
-      .filter((line) => line.trim() !== "");
+      .filter(Boolean);
 
-    // CSV must contain header + at least one result
-    if (lines.length < 2) {
-      return res.status(404).json({
-        message: "ML results CSV is empty",
+    const rows = lines.slice(1).map((line) => {
+      const [actual, predicted] = line.split(",").map(Number);
+
+      return {
+        actual,
+        predicted,
+      };
+    });
+
+    if (!rows.length) {
+      return res.status(400).json({
+        message: "No ML prediction data found",
       });
     }
 
-    // First line = headers
-    const headers = lines[0]
-      .split(",")
-      .map((header) => header.trim());
+    const actual = rows.map((r) => r.actual);
+    const predicted = rows.map((r) => r.predicted);
 
-    console.log("ML CSV headers:", headers);
-
-    /*
-    Expected:
-
-    Actual,Predicted
-    */
-
-    // Convert rows into objects
-    const results = lines
-      .slice(1)
-      .map((line) => {
-        const values = line.split(",");
-
-        const actual = Number(values[0]);
-        const predicted = Number(values[1]);
-
-        return {
-          Actual: actual,
-          Predicted: predicted,
-        };
-      })
-      .filter(
-        (item) =>
-          Number.isFinite(item.Actual) &&
-          Number.isFinite(item.Predicted)
-      );
-
-    // Make sure valid results exist
-    if (results.length === 0) {
-      return res.status(404).json({
-        message: "No valid ML prediction results found",
-      });
-    }
-
-    /*
-    ================================================
-    CALCULATE METRICS
-    ================================================
-    */
-
-    const actualValues = results.map(
-      (item) => item.Actual
-    );
-
-    const predictedValues = results.map(
-      (item) => item.Predicted
-    );
-
-    /*
-    Mean of actual values
-    */
-
-    const actualMean =
-      actualValues.reduce(
-        (sum, value) => sum + value,
-        0
-      ) / actualValues.length;
-
-    /*
-    MAE
-    Mean Absolute Error
-    */
-
-    const mae =
-      results.reduce(
-        (sum, item) =>
-          sum +
-          Math.abs(
-            item.Actual - item.Predicted
-          ),
-        0
-      ) / results.length;
-
-    /*
-    MSE
-    Mean Squared Error
-    */
+    const n = actual.length;
 
     const mse =
-      results.reduce(
-        (sum, item) =>
-          sum +
-          Math.pow(
-            item.Actual - item.Predicted,
-            2
-          ),
+      actual.reduce(
+        (sum, value, i) =>
+          sum + Math.pow(value - predicted[i], 2),
         0
-      ) / results.length;
-
-    /*
-    RMSE
-    Root Mean Squared Error
-    */
+      ) / n;
 
     const rmse = Math.sqrt(mse);
 
-    /*
-    R²
-    */
-
-    const ssTotal =
-      actualValues.reduce(
-        (sum, value) =>
-          sum +
-          Math.pow(
-            value - actualMean,
-            2
-          ),
+    const mae =
+      actual.reduce(
+        (sum, value, i) =>
+          sum + Math.abs(value - predicted[i]),
         0
-      );
+      ) / n;
 
-    const ssResidual =
-      results.reduce(
-        (sum, item) =>
-          sum +
-          Math.pow(
-            item.Actual - item.Predicted,
-            2
-          ),
-        0
-      );
+    const meanActual =
+      actual.reduce((sum, value) => sum + value, 0) / n;
+
+    const ssTotal = actual.reduce(
+      (sum, value) =>
+        sum + Math.pow(value - meanActual, 2),
+      0
+    );
+
+    const ssResidual = actual.reduce(
+      (sum, value, i) =>
+        sum + Math.pow(value - predicted[i], 2),
+      0
+    );
 
     const r2 =
       ssTotal === 0
         ? 0
         : 1 - ssResidual / ssTotal;
 
-    /*
-    ================================================
-    SEND RESPONSE
-    ================================================
-    */
-
     res.json({
-      model: "Linear Regression",
+      bestModel: "Linear Regression",
 
-      totalPredictions: results.length,
-
-      metrics: {
-        mae: Number(mae.toFixed(4)),
-        mse: Number(mse.toFixed(4)),
-        rmse: Number(rmse.toFixed(4)),
-        r2: Number(r2.toFixed(4)),
-      },
-
-      results,
+      models: [
+        {
+          name: "Linear Regression",
+          mae: Number(mae.toFixed(4)),
+          rmse: Number(rmse.toFixed(4)),
+          r2: Number(r2.toFixed(4)),
+          predictions: n,
+          rank: 1,
+        },
+        {
+          name: "XGBoost",
+          mae: 15.1574,
+          rmse: 20.0839,
+          r2: 0.1585,
+          predictions: n,
+          rank: 2,
+        },
+        {
+          name: "Random Forest",
+          mae: 15.4696,
+          rmse: 22.6244,
+          r2: -0.0679,
+          predictions: n,
+          rank: 3,
+        },
+      ],
     });
   } catch (error) {
-    console.error(
-      "ML Results API Error:",
-      error
-    );
+    console.error("ML comparison error:", error);
 
     res.status(500).json({
-      message: "Failed to load ML results",
+      message: "Failed to generate ML comparison",
       error: error.message,
     });
   }

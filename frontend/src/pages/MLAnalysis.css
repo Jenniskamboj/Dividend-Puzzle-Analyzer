@@ -686,3 +686,165 @@
     height: 300px;
   }
 }
+
+/* =========================================
+   DAY 34 - ML ANALYSIS ENHANCEMENTS
+   ========================================= */
+
+/* Better interaction for model card */
+.model-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.model-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 40px rgba(15, 23, 42, 0.08),
+    0 3px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* Model information hover */
+.model-info > div {
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.model-info > div:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+}
+
+/* Better chart hover area */
+.chart-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.chart-card:hover {
+  box-shadow:
+    0 16px 40px rgba(15, 23, 42, 0.08),
+    0 3px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* Results table improvements */
+.results-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.results-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Actual / predicted values */
+.results-table td strong {
+  color: #111827;
+  font-weight: 750;
+}
+
+/* Positive prediction error */
+.error-positive {
+  background: #fef2f2;
+  padding: 5px 8px;
+  border-radius: 7px;
+  display: inline-block;
+}
+
+/* Negative prediction error */
+.error-negative {
+  background: #eff6ff;
+  padding: 5px 8px;
+  border-radius: 7px;
+  display: inline-block;
+}
+
+/* R2 status */
+.performance-status {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.performance-status:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(124, 58, 237, 0.12);
+}
+
+/* Best model badge */
+.best-model-badge {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.best-model-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
+}
+
+/* Model active indicator */
+.model-status {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.model-status:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Interpretation card */
+.interpretation-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.interpretation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.08);
+}
+
+/* Better back button */
+.back-button {
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.back-button:hover {
+  transform: translateX(-2px);
+}
+
+/* Mobile improvements */
+@media (max-width: 600px) {
+  .model-card-top {
+    gap: 18px;
+  }
+
+  .best-model-badge {
+    align-self: flex-start;
+  }
+
+  .model-status {
+    width: fit-content;
+  }
+
+  .interpretation-card {
+    gap: 12px;
+    padding: 18px;
+  }
+
+  .interpretation-card p {
+    font-size: 13px;
+  }
+
+  .results-table th,
+  .results-table td {
+    padding: 12px 13px;
+  }
+}

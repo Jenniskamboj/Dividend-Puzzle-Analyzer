@@ -21,6 +21,9 @@ function MLAnalysis() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ==============================
+  // FETCH DAY 33 ML RESULTS
+  // ==============================
   useEffect(() => {
     const fetchMLResults = async () => {
       try {
@@ -34,9 +37,13 @@ function MLAnalysis() {
         }
 
         const result = await response.json();
+
+        console.log("ML Results:", result);
+
         setData(result);
       } catch (err) {
         console.error("ML API Error:", err);
+
         setError(
           "Unable to load machine learning results. Make sure the backend server is running."
         );
@@ -48,6 +55,9 @@ function MLAnalysis() {
     fetchMLResults();
   }, []);
 
+  // ==============================
+  // PREPARE PREDICTION RESULTS
+  // ==============================
   const results = useMemo(() => {
     if (!data?.results || !Array.isArray(data.results)) {
       return [];
@@ -56,6 +66,7 @@ function MLAnalysis() {
     return data.results.map((item, index) => {
       const actual = Number(item.Actual) || 0;
       const predicted = Number(item.Predicted) || 0;
+
       const errorValue = actual - predicted;
 
       return {
@@ -69,6 +80,9 @@ function MLAnalysis() {
     });
   }, [data]);
 
+  // ==============================
+  // CALCULATE MODEL METRICS
+  // ==============================
   const metrics = useMemo(() => {
     if (!results.length) {
       return {
@@ -79,32 +93,41 @@ function MLAnalysis() {
       };
     }
 
+    // MSE
     const mse =
       results.reduce((sum, item) => {
         return sum + Math.pow(item.error, 2);
       }, 0) / results.length;
 
+    // MAE
     const mae =
       results.reduce((sum, item) => {
         return sum + Math.abs(item.error);
       }, 0) / results.length;
 
+    // RMSE
     const rmse = Math.sqrt(mse);
 
+    // Mean of actual values
     const actualMean =
       results.reduce((sum, item) => sum + item.actual, 0) /
       results.length;
 
+    // Total variation
     const ssTotal = results.reduce((sum, item) => {
       return sum + Math.pow(item.actual - actualMean, 2);
     }, 0);
 
+    // Residual variation
     const ssResidual = results.reduce((sum, item) => {
       return sum + Math.pow(item.error, 2);
     }, 0);
 
+    // R²
     const r2 =
-      ssTotal === 0 ? 0 : 1 - ssResidual / ssTotal;
+      ssTotal === 0
+        ? 0
+        : 1 - ssResidual / ssTotal;
 
     return {
       mse,
@@ -114,6 +137,9 @@ function MLAnalysis() {
     };
   }, [results]);
 
+  // ==============================
+  // CHART DATA
+  // ==============================
   const chartData = useMemo(() => {
     return results.map((item) => ({
       name: item.id,
@@ -122,35 +148,66 @@ function MLAnalysis() {
     }));
   }, [results]);
 
+  // ==============================
+  // NUMBER FORMAT
+  // ==============================
   const formatNumber = (value) => {
     return Number(value).toFixed(4);
   };
 
+  // ==============================
+  // R² STATUS
+  // ==============================
   const getR2Status = (r2) => {
-    if (r2 >= 0.7) return "Strong";
-    if (r2 >= 0.4) return "Moderate";
+    if (r2 >= 0.7) {
+      return "Strong";
+    }
+
+    if (r2 >= 0.4) {
+      return "Moderate";
+    }
+
     return "Needs Improvement";
   };
 
+  // ==============================
+  // LOADING SCREEN
+  // ==============================
   if (loading) {
     return (
       <div className="ml-page">
         <div className="ml-loading">
           <div className="loading-spinner"></div>
+
           <h2>Loading ML Analysis</h2>
-          <p>Fetching model performance data...</p>
+
+          <p>
+            Fetching model performance data...
+          </p>
         </div>
       </div>
     );
   }
 
+  // ==============================
+  // ERROR SCREEN
+  // ==============================
   if (error) {
     return (
       <div className="ml-page">
         <div className="ml-error">
-          <div className="error-icon">!</div>
-          <h2>Unable to Load Analysis</h2>
-          <p>{error}</p>
+
+          <div className="error-icon">
+            !
+          </div>
+
+          <h2>
+            Unable to Load Analysis
+          </h2>
+
+          <p>
+            {error}
+          </p>
 
           <button
             className="primary-button"
@@ -158,19 +215,30 @@ function MLAnalysis() {
           >
             Try Again
           </button>
+
         </div>
       </div>
     );
   }
 
+  // ==============================
+  // MAIN PAGE
+  // ==============================
   return (
     <div className="ml-page">
+
       <div className="ml-container">
 
-        {/* HEADER */}
+        {/* ==========================
+            HEADER
+        ========================== */}
+
         <header className="ml-header">
+
           <div>
+
             <div className="breadcrumb">
+
               <button
                 className="back-button"
                 onClick={() => navigate("/dashboard")}
@@ -179,31 +247,49 @@ function MLAnalysis() {
               </button>
 
               <span>/</span>
-              <span>Analysis</span>
+
+              <span>
+                Analysis
+              </span>
+
             </div>
 
             <div className="eyebrow">
               MACHINE LEARNING
             </div>
 
-            <h1>Machine Learning Analysis</h1>
+            <h1>
+              Machine Learning Analysis
+            </h1>
 
             <p className="page-description">
-              Evaluate dividend prediction performance using machine
-              learning models.
+              Evaluate dividend prediction performance using
+              machine learning models.
             </p>
+
           </div>
 
           <div className="model-status">
+
             <span className="status-dot"></span>
+
             Model Active
+
           </div>
+
         </header>
 
-        {/* MODEL SUMMARY */}
+
+        {/* ==========================
+            MODEL SUMMARY
+        ========================== */}
+
         <section className="model-card">
+
           <div className="model-card-top">
+
             <div>
+
               <span className="section-label">
                 SELECTED MODEL
               </span>
@@ -213,115 +299,254 @@ function MLAnalysis() {
               </h2>
 
               <p>
-                Best performing model for the current dividend
-                prediction dataset.
+                Best performing model for the current
+                dividend prediction dataset.
               </p>
+
             </div>
 
             <div className="best-model-badge">
               ★ Best Model
             </div>
+
           </div>
+
 
           <div className="model-info">
-            <div>
-              <span>Predictions</span>
-              <strong>{results.length}</strong>
-              <small>Test observations</small>
-            </div>
 
             <div>
-              <span>Model Type</span>
-              <strong>Regression</strong>
-              <small>Supervised learning</small>
+
+              <span>
+                Predictions
+              </span>
+
+              <strong>
+                {results.length}
+              </strong>
+
+              <small>
+                Test observations
+              </small>
+
             </div>
 
+
             <div>
-              <span>Dataset</span>
-              <strong>Dividend</strong>
-              <small>Prediction dataset</small>
+
+              <span>
+                Model Type
+              </span>
+
+              <strong>
+                Regression
+              </strong>
+
+              <small>
+                Supervised learning
+              </small>
+
             </div>
+
+
+            <div>
+
+              <span>
+                Dataset
+              </span>
+
+              <strong>
+                Dividend
+              </strong>
+
+              <small>
+                Prediction dataset
+              </small>
+
+            </div>
+
           </div>
+
         </section>
 
-        {/* METRICS */}
+
+        {/* ==========================
+            MODEL PERFORMANCE
+        ========================== */}
+
         <section className="section-block">
+
           <div className="section-heading">
+
             <div>
-              <h2>Model Performance</h2>
+
+              <h2>
+                Model Performance
+              </h2>
+
               <p>
                 Key evaluation metrics for the selected model.
               </p>
+
             </div>
 
             <div className="performance-status">
               {getR2Status(metrics.r2)}
             </div>
+
           </div>
+
 
           <div className="metrics-grid">
 
-            <div className="metric-card">
-              <div className="metric-icon">MSE</div>
-              <div className="metric-content">
-                <span>Mean Squared Error</span>
-                <strong>{formatNumber(metrics.mse)}</strong>
-                <small>Lower is better</small>
-              </div>
-            </div>
+            {/* MSE */}
 
             <div className="metric-card">
-              <div className="metric-icon">MAE</div>
-              <div className="metric-content">
-                <span>Mean Absolute Error</span>
-                <strong>{formatNumber(metrics.mae)}</strong>
-                <small>Average prediction error</small>
+
+              <div className="metric-icon">
+                MSE
               </div>
+
+              <div className="metric-content">
+
+                <span>
+                  Mean Squared Error
+                </span>
+
+                <strong>
+                  {formatNumber(metrics.mse)}
+                </strong>
+
+                <small>
+                  Lower is better
+                </small>
+
+              </div>
+
             </div>
 
+
+            {/* MAE */}
+
             <div className="metric-card">
-              <div className="metric-icon">RMSE</div>
-              <div className="metric-content">
-                <span>Root Mean Squared Error</span>
-                <strong>{formatNumber(metrics.rmse)}</strong>
-                <small>Prediction accuracy</small>
+
+              <div className="metric-icon">
+                MAE
               </div>
+
+              <div className="metric-content">
+
+                <span>
+                  Mean Absolute Error
+                </span>
+
+                <strong>
+                  {formatNumber(metrics.mae)}
+                </strong>
+
+                <small>
+                  Average prediction error
+                </small>
+
+              </div>
+
             </div>
+
+
+            {/* RMSE */}
+
+            <div className="metric-card">
+
+              <div className="metric-icon">
+                RMSE
+              </div>
+
+              <div className="metric-content">
+
+                <span>
+                  Root Mean Squared Error
+                </span>
+
+                <strong>
+                  {formatNumber(metrics.rmse)}
+                </strong>
+
+                <small>
+                  Prediction accuracy
+                </small>
+
+              </div>
+
+            </div>
+
+
+            {/* R² */}
 
             <div className="metric-card r2-card">
-              <div className="metric-icon">R²</div>
-              <div className="metric-content">
-                <span>R² Score</span>
-                <strong>{formatNumber(metrics.r2)}</strong>
-                <small>Model explanatory power</small>
+
+              <div className="metric-icon">
+                R²
               </div>
+
+              <div className="metric-content">
+
+                <span>
+                  R² Score
+                </span>
+
+                <strong>
+                  {formatNumber(metrics.r2)}
+                </strong>
+
+                <small>
+                  Model explanatory power
+                </small>
+
+              </div>
+
             </div>
 
           </div>
+
         </section>
 
-        {/* CHART */}
+
+        {/* ==========================
+            ACTUAL VS PREDICTED CHART
+        ========================== */}
+
         <section className="chart-card">
+
           <div className="chart-header">
+
             <div>
-              <h2>Actual vs Predicted</h2>
+
+              <h2>
+                Actual vs Predicted
+              </h2>
+
               <p>
-                Comparison of observed and predicted dividend
-                values across test observations.
+                Comparison of observed and predicted
+                dividend values across test observations.
               </p>
+
             </div>
 
             <div className="chart-count">
               {results.length} observations
             </div>
+
           </div>
 
+
           <div className="chart-wrapper">
+
             {chartData.length > 0 ? (
+
               <ResponsiveContainer
                 width="100%"
                 height="100%"
               >
+
                 <LineChart
                   data={chartData}
                   margin={{
@@ -331,24 +556,30 @@ function MLAnalysis() {
                     bottom: 10,
                   }}
                 >
+
                   <CartesianGrid
                     strokeDasharray="4 4"
                     vertical={false}
                   />
 
+
                   <XAxis
                     dataKey="name"
-                    tickFormatter={(value) => `#${value}`}
+                    tickFormatter={(value) =>
+                      `#${value}`
+                    }
                     tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
                   />
+
 
                   <YAxis
                     tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
                   />
+
 
                   <Tooltip
                     contentStyle={{
@@ -365,10 +596,14 @@ function MLAnalysis() {
                     }
                   />
 
+
                   <Legend
                     verticalAlign="top"
                     height={40}
                   />
+
+
+                  {/* ACTUAL */}
 
                   <Line
                     type="monotone"
@@ -385,6 +620,9 @@ function MLAnalysis() {
                     }}
                   />
 
+
+                  {/* PREDICTED */}
+
                   <Line
                     type="monotone"
                     dataKey="predicted"
@@ -400,22 +638,37 @@ function MLAnalysis() {
                       r: 7,
                     }}
                   />
+
                 </LineChart>
+
               </ResponsiveContainer>
+
             ) : (
+
               <div className="empty-state">
                 No prediction data available.
               </div>
+
             )}
+
           </div>
+
         </section>
 
-        {/* RESULTS TABLE */}
+
+        {/* ==========================
+            PREDICTION RESULTS TABLE
+        ========================== */}
+
         <section className="results-card">
 
           <div className="results-header">
+
             <div>
-              <h2>Prediction Results</h2>
+
+              <h2>
+                Prediction Results
+              </h2>
 
               <p>
                 Detailed results generated by the{" "}
@@ -424,47 +677,84 @@ function MLAnalysis() {
                 </strong>{" "}
                 model.
               </p>
+
             </div>
 
             <div className="results-count">
               {results.length} Results
             </div>
+
           </div>
 
+
           <div className="table-container">
+
             <table className="results-table">
+
               <thead>
+
                 <tr>
-                  <th>#</th>
-                  <th>Actual Dividend</th>
-                  <th>Predicted Dividend</th>
-                  <th>Error</th>
-                  <th>Absolute Error</th>
+
+                  <th>
+                    #
+                  </th>
+
+                  <th>
+                    Actual Dividend
+                  </th>
+
+                  <th>
+                    Predicted Dividend
+                  </th>
+
+                  <th>
+                    Error
+                  </th>
+
+                  <th>
+                    Absolute Error
+                  </th>
+
                 </tr>
+
               </thead>
 
+
               <tbody>
+
                 {results.map((item) => (
+
                   <tr key={item.id}>
+
                     <td>
+
                       <span className="row-number">
                         {item.id}
                       </span>
+
                     </td>
 
+
                     <td>
+
                       <strong>
                         {item.actual.toFixed(2)}
                       </strong>
+
                     </td>
 
+
                     <td>
+
                       <strong>
                         {item.predicted.toFixed(4)}
                       </strong>
+
                     </td>
 
+
                     <td>
+
                       <span
                         className={
                           item.error >= 0
@@ -472,45 +762,80 @@ function MLAnalysis() {
                             : "error-negative"
                         }
                       >
-                        {item.error >= 0 ? "+" : ""}
+
+                        {item.error >= 0
+                          ? "+"
+                          : ""}
+
                         {item.error.toFixed(4)}
+
                       </span>
+
                     </td>
+
 
                     <td>
                       {item.absoluteError.toFixed(4)}
                     </td>
+
                   </tr>
+
                 ))}
+
               </tbody>
+
             </table>
+
           </div>
+
         </section>
 
-        {/* INTERPRETATION */}
+
+        {/* ==========================
+            INTERPRETATION
+        ========================== */}
+
         <section className="interpretation-card">
+
           <div className="interpretation-icon">
             ✓
           </div>
 
           <div>
-            <h2>Model Interpretation</h2>
+
+            <h2>
+              Model Interpretation
+            </h2>
 
             <p>
+
               The{" "}
+
               <strong>
                 {data?.model || "Linear Regression"}
               </strong>{" "}
+
               model achieved an R² score of{" "}
-              <strong>{formatNumber(metrics.r2)}</strong>.
-              The model explains part of the variation in dividend
-              values, while prediction errors indicate that there
-              is still room for improvement.
+
+              <strong>
+                {formatNumber(metrics.r2)}
+              </strong>.
+
+              {" "}
+
+              The model explains part of the variation
+              in dividend values, while prediction errors
+              indicate that there is still room for
+              improvement.
+
             </p>
+
           </div>
+
         </section>
 
       </div>
+
     </div>
   );
 }
