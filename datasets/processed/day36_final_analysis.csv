@@ -1,0 +1,8 @@
+category,name,score,rank
+Theory,Signaling Theory,0.82,1
+Theory,Agency Cost Theory,0.74,2
+Theory,Bird-in-Hand Theory,0.68,3
+Theory,Tax/Clientele Theory,0.59,4
+ML Model,Linear Regression,0.3665,1
+ML Model,XGBoost,0.1585,2
+ML Model,Random Forest,-0.0679,3

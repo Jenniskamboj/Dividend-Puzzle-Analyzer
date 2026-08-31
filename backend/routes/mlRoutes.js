@@ -121,3 +121,76 @@ router.get("/comparison", (req, res) => {
 });
 
 module.exports = router;
+
+// =====================================================
+// DAY 36 - FINAL ANALYSIS API
+// =====================================================
+
+router.get("/final-analysis", (req, res) => {
+  try {
+    const finalResultsPath = path.join(
+      __dirname,
+      "../../datasets/processed/day36_final_analysis.csv"
+    );
+
+    if (!fs.existsSync(finalResultsPath)) {
+      return res.status(404).json({
+        message: "Final analysis CSV not found",
+      });
+    }
+
+    const file = fs.readFileSync(
+      finalResultsPath,
+      "utf8"
+    );
+
+    const lines = file
+      .trim()
+      .split(/\r?\n/)
+      .filter(Boolean);
+
+    const rows = lines.slice(1).map((line) => {
+      const [category, name, score, rank] =
+        line.split(",");
+
+      return {
+        category,
+        name,
+        score: Number(score),
+        rank: Number(rank),
+      };
+    });
+
+    const theories = rows
+      .filter((item) => item.category === "Theory")
+      .sort((a, b) => a.rank - b.rank);
+
+    const models = rows
+      .filter((item) => item.category === "ML Model")
+      .sort((a, b) => a.rank - b.rank);
+
+    res.json({
+      bestTheory: theories[0],
+      bestModel: models[0],
+
+      theories,
+      models,
+
+      summary: {
+        totalTheories: theories.length,
+        totalModels: models.length,
+      },
+    });
+
+  } catch (error) {
+    console.error(
+      "Final Analysis API Error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Failed to load final analysis",
+      error: error.message,
+    });
+  }
+});

@@ -7,11 +7,19 @@ require("dotenv").config();
 
 const app = express();
 
+// =====================================================
+// ROUTES
+// =====================================================
+
 const companyRoutes = require("./routes/companyRoutes");
+const mlRoutes = require("./routes/mlRoutes");
+
+// =====================================================
+// MIDDLEWARE
+// =====================================================
 
 app.use(cors());
 app.use(express.json());
-
 
 // =====================================================
 // COMPANY API
@@ -19,6 +27,11 @@ app.use(express.json());
 
 app.use("/api/companies", companyRoutes);
 
+// =====================================================
+// ML ROUTES - DAY 36
+// =====================================================
+
+app.use("/api/ml", mlRoutes);
 
 // =====================================================
 // POSTGRESQL DATABASE
@@ -34,7 +47,6 @@ const pool = new Pool({
   password: "jennis123",
 });
 
-
 // =====================================================
 // ROOT API
 // =====================================================
@@ -45,7 +57,6 @@ app.get("/", (req, res) => {
   });
 });
 
-
 // =====================================================
 // THEORY API
 // =====================================================
@@ -53,7 +64,7 @@ app.get("/", (req, res) => {
 app.get("/api/theories", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
+      SELECT
         theory_name,
         evidence_score,
         rank
@@ -72,14 +83,13 @@ app.get("/api/theories", async (req, res) => {
   }
 });
 
-
 // =====================================================
 // ML RESULTS API - DAY 33
 // =====================================================
 
 app.get("/api/ml-results", (req, res) => {
   try {
-    // Location of the ML results CSV
+    // Path to Day 17 Linear Regression results
     const csvPath = path.join(
       __dirname,
       "..",
@@ -90,7 +100,7 @@ app.get("/api/ml-results", (req, res) => {
 
     console.log("Reading ML CSV:", csvPath);
 
-    // Check whether CSV exists
+    // Check if CSV exists
     if (!fs.existsSync(csvPath)) {
       return res.status(404).json({
         message: "ML results CSV not found",
@@ -101,20 +111,20 @@ app.get("/api/ml-results", (req, res) => {
     // Read CSV
     const csvData = fs.readFileSync(csvPath, "utf8");
 
-    // Split into rows
+    // Convert CSV into lines
     const lines = csvData
       .trim()
       .split(/\r?\n/)
       .filter((line) => line.trim() !== "");
 
-    // Need at least header + one data row
+    // Header + at least one row required
     if (lines.length < 2) {
       return res.status(404).json({
         message: "ML results CSV is empty",
       });
     }
 
-    // First row = header
+    // Read headers
     const headers = lines[0]
       .split(",")
       .map((header) => header.trim());
@@ -130,7 +140,7 @@ app.get("/api/ml-results", (req, res) => {
       });
     }
 
-    // Convert CSV rows into objects
+    // Convert rows into objects
     const results = lines
       .slice(1)
       .map((line) => {
@@ -153,7 +163,6 @@ app.get("/api/ml-results", (req, res) => {
       });
     }
 
-
     // =================================================
     // CALCULATE ERRORS
     // =================================================
@@ -161,7 +170,6 @@ app.get("/api/ml-results", (req, res) => {
     const errors = results.map(
       (item) => item.Actual - item.Predicted
     );
-
 
     // =================================================
     // MSE
@@ -173,7 +181,6 @@ app.get("/api/ml-results", (req, res) => {
         0
       ) / errors.length;
 
-
     // =================================================
     // MAE
     // =================================================
@@ -184,13 +191,11 @@ app.get("/api/ml-results", (req, res) => {
         0
       ) / errors.length;
 
-
     // =================================================
     // RMSE
     // =================================================
 
     const rmse = Math.sqrt(mse);
-
 
     // =================================================
     // R² SCORE
@@ -206,13 +211,11 @@ app.get("/api/ml-results", (req, res) => {
         0
       ) / actualValues.length;
 
-
     const ssTotal = actualValues.reduce(
       (sum, value) =>
         sum + Math.pow(value - actualMean, 2),
       0
     );
-
 
     const ssResidual = errors.reduce(
       (sum, error) =>
@@ -220,15 +223,13 @@ app.get("/api/ml-results", (req, res) => {
       0
     );
 
-
     const r2 =
       ssTotal === 0
         ? 0
         : 1 - ssResidual / ssTotal;
 
-
     // =================================================
-    // SEND RESPONSE
+    // SEND DAY 33 RESPONSE
     // =================================================
 
     res.json({
@@ -256,6 +257,16 @@ app.get("/api/ml-results", (req, res) => {
   }
 });
 
+// =====================================================
+// 404 HANDLER
+// =====================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: "API endpoint not found",
+    path: req.originalUrl,
+  });
+});
 
 // =====================================================
 // START SERVER
@@ -264,5 +275,21 @@ app.get("/api/ml-results", (req, res) => {
 app.listen(PORT, () => {
   console.log(
     `Server running at http://localhost:${PORT}`
+  );
+
+  console.log(
+    `Companies API: http://localhost:${PORT}/api/companies`
+  );
+
+  console.log(
+    `Theory API: http://localhost:${PORT}/api/theories`
+  );
+
+  console.log(
+    `ML Results API: http://localhost:${PORT}/api/ml-results`
+  );
+
+  console.log(
+    `ML Routes: http://localhost:${PORT}/api/ml`
   );
 });
